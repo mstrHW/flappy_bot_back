@@ -9,7 +9,7 @@ const server = express();
 const bot = new TelegramBot(TOKEN, {
     polling: true
 });
-const port = process.env.PORT || 7005;
+const port = 3000;
 const gameName = process.env.GAME_NAME;
 const queries = {};
 // server.use(express.static(path.join(__dirname, 'flappy_test')));
@@ -35,5 +35,5 @@ bot.on("inline_query", function (iq) {
         game_short_name: gameName
     }]);
 });
-
+server.get("/", (req, res) => res.send("Express on Vercel"));
 server.listen(port);
