@@ -49,9 +49,9 @@ bot.on("inline_query", function (iq) {
 
 
 app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
-    console.log("/get_user_info");
+    console.log("/get_user_info " + req.params["user_id"]);
     var answer = "None";
-    console.log("here 1 ");
+    // console.log("here 1 ");
     var user_id = null;
     if ("user_id" in req.params){
         user_id = req.params["user_id"];
@@ -70,13 +70,13 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
         result = await collection.find({"user_id" : user_id}).toArray();
     }
     answer = result[0];
-    console.log("here" + answer);
+    // console.log("here" + answer);
     delete answer['_id'];
     res.send(answer);
 });
 
 app.get("/pass_onboarding/:user_id", async (req, res) => {
-    console.log("/get_user_info " + user_id);
+    console.log("/get_user_info " + req.params["user_id"]);
 
     var user_id = req.params["user_id"];
 
@@ -92,12 +92,12 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
     };
     // Update the first document that matches the filter
     const result = await collection.updateOne(filter, updateDoc, options);
-    console.log("here 1 " + result);
+    // console.log("here 1 " + result);
     res.send(result);
 });
 
 app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, res) => {
-    console.log("/choose_fraction " + user_id + " " + fraction);
+    console.log("/choose_fraction " + req.params["user_id"] + " " + req.params["user_id"]);
     var user_id = req.params["user_id"];
     var fraction = req.params["fraction"];
     const db = client.db("mydb");
@@ -112,7 +112,7 @@ app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, re
     };
     // Update the first document that matches the filter
     const result = await collection.updateOne(filter, updateDoc, options);
-    console.log("here 2 " + result);
+    // console.log("here 2 " + result);
     res.send(result);
 });
 
