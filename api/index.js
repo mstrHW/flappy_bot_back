@@ -9,7 +9,12 @@ const TOKEN = process.env.BOT_TOKEN;
 const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
-app.use(cors())
+// app.use(cors())
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 // var cors_proxy = require('cors-anywhere');
 // const app = cors_proxy.createServer({
 //     originWhitelist: [], // Allow all origins
