@@ -9,7 +9,10 @@ const TOKEN = process.env.BOT_TOKEN;
 const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
-app.use(cors());
+let corsOptions = {
+   origin : ['http://localhost:57261'],
+}
+app.use(cors(corsOptions));
 const bot = new TelegramBot(TOKEN, {
     polling: true
 });
@@ -45,7 +48,7 @@ bot.on("inline_query", function (iq) {
 });
 
 
-app.get("/get_user_info/:user_id", async (req, res) => {
+app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
 
     var answer = "None";
     console.log("here 1 ");
