@@ -70,7 +70,7 @@ bot.on("inline_query", function (iq) {
 app.get("/get_user_info/:user_id", async (req, res) => {
         const origin = req.get('origin');
 
-    if (allowedDomains.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         console.log("includes");
       res.set('Access-Control-Allow-Origin', origin);
     }
@@ -102,7 +102,7 @@ app.get("/get_user_info/:user_id", async (req, res) => {
 app.get("/pass_onboarding/:user_id", async (req, res) => {
         const origin = req.get('origin');
 
-    if (allowedDomains.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         console.log("includes");
       res.set('Access-Control-Allow-Origin', origin);
     }
@@ -127,7 +127,7 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
 app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
             const origin = req.get('origin');
 
-    if (allowedDomains.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         console.log("includes");
       res.set('Access-Control-Allow-Origin', origin);
     }
@@ -152,7 +152,7 @@ app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
 app.get("/get_tasks/:user_id", async (req, res) => {
             const origin = req.get('origin');
 
-    if (allowedDomains.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         console.log("includes");
       res.set('Access-Control-Allow-Origin', origin);
     }
@@ -177,7 +177,7 @@ app.get("/get_tasks/:user_id", async (req, res) => {
 app.get("/add_task/:name/:descr/:link", async (req, res) => {
             const origin = req.get('origin');
 
-    if (allowedDomains.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         console.log("includes");
       res.set('Access-Control-Allow-Origin', origin);
     }
@@ -204,7 +204,7 @@ app.get("/", function(req, res)
 {
     const origin = req.get('origin');
 
-    if (allowedDomains.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         console.log("includes");
         res.set('Access-Control-Allow-Origin', origin);
     }
