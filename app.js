@@ -10,7 +10,7 @@ const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
 let corsOptions = {
-   origin : ['http://localhost:57261'],
+   origin : ['http://localhost:57261', 'https://flappybotback-4fm7p9xx.b4a.run'],
 }
 app.use(cors(corsOptions));
 const bot = new TelegramBot(TOKEN, {
@@ -49,7 +49,7 @@ bot.on("inline_query", function (iq) {
 
 
 app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
-
+    console.log("/get_user_info");
     var answer = "None";
     console.log("here 1 ");
     var user_id = null;
@@ -76,7 +76,7 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
 });
 
 app.get("/pass_onboarding/:user_id", async (req, res) => {
-
+    console.log("/get_user_info " + user_id);
 
     var user_id = req.params["user_id"];
 
@@ -97,7 +97,7 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
 });
 
 app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
-
+    console.log("/choose_fraction " + user_id + " " + fraction);
     var user_id = req.params["user_id"];
     var fraction = req.params["fraction"];
     const db = client.db("mydb");
