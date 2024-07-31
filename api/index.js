@@ -9,12 +9,7 @@ const TOKEN = process.env.BOT_TOKEN;
 const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
-// app.use(cors())
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+app.use(cors())
 // var cors_proxy = require('cors-anywhere');
 // const app = cors_proxy.createServer({
 //     originWhitelist: [], // Allow all origins
@@ -66,6 +61,9 @@ bot.on("inline_query", function (iq) {
 
 
 app.get("/get_user_info/:user_id", async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     var answer = "None";
     console.log("here 1 ");
     var user_id = null;
@@ -92,6 +90,10 @@ app.get("/get_user_info/:user_id", async (req, res) => {
 });
 
 app.get("/pass_onboarding/:user_id", async (req, res) => {
+       res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     var user_id = req.params["user_id"];
 
     const db = client.db("mydb");
@@ -111,6 +113,10 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
 });
 
 app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     var user_id = req.params["user_id"];
     var fraction = req.params["fraction"];
     const db = client.db("mydb");
@@ -130,6 +136,10 @@ app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
 });
 
 app.get("/get_tasks/:user_id", async (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     var user_id = req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
@@ -149,6 +159,10 @@ app.get("/get_tasks/:user_id", async (req, res) => {
 });
 
 app.get("/add_task/:name/:descr/:link", async (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     // var user_id = req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
@@ -170,6 +184,9 @@ app.get("/add_task/:name/:descr/:link", async (req, res) => {
 const vercel_hello = "Express on Vercel changed again more"
 app.get("/", function(req, res)
 {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.send(vercel_hello);
 });
 if(!module.parent){
