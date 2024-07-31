@@ -16,7 +16,7 @@ const app = express();
 //     removeHeaders: ['cookie', 'cookie2']
 // })
 
-// const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
+const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
 const corsOptions ={
    origin:'*',
    credentials:true,            //access-control-allow-credentials:true
