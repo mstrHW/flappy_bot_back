@@ -16,11 +16,13 @@ const app = express();
 //     removeHeaders: ['cookie', 'cookie2']
 // })
 
-const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
-app.use(cors({
-  origin: "https://mstrhw.github.io",
-  }
-  ));
+// const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
+const corsOptions ={
+   origin:'*',
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+}
+app.use(cors(corsOptions));
 
 const bot = new TelegramBot(TOKEN, {
     polling: true
@@ -203,4 +205,5 @@ app.get("/", function(req, res)
 if(!module.parent){
     app.listen(port, () => console.log("Server ready on port " + port));
 }
+app.use(cors(corsOptions));
 module.exports = app;
