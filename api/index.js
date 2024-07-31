@@ -3,11 +3,29 @@ const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 const process = require('process');
 const { MongoClient } = require('mongodb');
+const cors = require('cors');
 require('dotenv').config()
 const TOKEN = process.env.BOT_TOKEN;
 const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
+
+const allowedOrigins = ['https://mstrhw.github.io/flappy_test_devel', 'https://mstrhw.github.io/', 'https://github.io/', 'https://www.github.com/'];
+app.use(cors({
+  origin: function(origin, callback){
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+
+}));
+
 const bot = new TelegramBot(TOKEN, {
     polling: true
 });
@@ -16,7 +34,9 @@ const gameName = process.env.GAME_NAME;
 const queries = {};
 // // server.use(express.static(path.join(__dirname, 'flappy_test')));
 bot.onText(/help/, (msg) => bot.sendMessage(msg.from.id, "Say /game if you want to play."));
-bot.onText(/start|game/, (msg) => bot.sendGame(msg.from.id, gameName));
+bot.onText(/start|game/, function (msg) {
+    bot.sendGame(msg.from.id, gameName)
+});
 
 bot.on("callback_query", function (query) {
     console.log("user: " + query.from.id)
