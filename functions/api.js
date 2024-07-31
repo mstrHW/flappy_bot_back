@@ -3,14 +3,6 @@ const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 const process = require('process');
 const { MongoClient } = require('mongodb');
-import serverless from "serverless-http";
-import fetch from "node-fetch";
-
-const octokit = new Octokit({
-  request: {
-    fetch: fetch,
-  },
-});
 const cors = require('cors');
 require('dotenv').config()
 const TOKEN = process.env.BOT_TOKEN;
