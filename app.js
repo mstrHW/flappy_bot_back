@@ -9,7 +9,7 @@ const TOKEN = process.env.BOT_TOKEN;
 const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
-
+app.use(cors());
 const bot = new TelegramBot(TOKEN, {
     polling: true
 });
