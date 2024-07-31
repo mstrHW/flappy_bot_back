@@ -18,19 +18,9 @@ const app = express();
 
 const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
 app.use(cors({
-  origin: function(origin, callback){
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
+  origin: "https://mstrhw.github.io",
   }
-
-}));
+  ));
 
 const bot = new TelegramBot(TOKEN, {
     polling: true
