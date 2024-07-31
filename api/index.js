@@ -10,7 +10,7 @@ const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
 
-const allowedOrigins = ['https://mstrhw.github.io/flappy_test_devel', 'https://mstrhw.github.io/', 'https://github.io/', 'https://www.github.com/'];
+const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
 app.use(cors({
   origin: function(origin, callback){
     if (!origin) {
