@@ -9,21 +9,7 @@ const TOKEN = process.env.BOT_TOKEN;
 const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
-app.use(cors())
-// var cors_proxy = require('cors-anywhere');
-// const app = cors_proxy.createServer({
-//     originWhitelist: [], // Allow all origins
-//     requireHeader: ['origin', 'x-requested-with'],
-//     removeHeaders: ['cookie', 'cookie2']
-// })
-
-// const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
-// const corsOptions ={
-//    origin:'*',
-//    credentials:true,            //access-control-allow-credentials:true
-//    optionSuccessStatus:200,
-// }
-// app.use(cors(corsOptions));
+const router = express.Router();
 
 const bot = new TelegramBot(TOKEN, {
     polling: true
@@ -60,11 +46,8 @@ bot.on("inline_query", function (iq) {
 });
 
 
-app.get("/get_user_info/:user_id", async (req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    var answer = "None";
+router.get("/get_user_info/:user_id", async (req, res) => {
+   var answer = "None";
     console.log("here 1 ");
     var user_id = null;
     if ("user_id" in req.params){
@@ -89,10 +72,7 @@ app.get("/get_user_info/:user_id", async (req, res) => {
     res.send(answer);
 });
 
-app.get("/pass_onboarding/:user_id", async (req, res) => {
-       res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+router.get("/pass_onboarding/:user_id", async (req, res) => {
 
     var user_id = req.params["user_id"];
 
@@ -112,11 +92,7 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
     res.send(result);
 });
 
-app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
+router.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
     var user_id = req.params["user_id"];
     var fraction = req.params["fraction"];
     const db = client.db("mydb");
@@ -135,10 +111,7 @@ app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
     res.send(result);
 });
 
-app.get("/get_tasks/:user_id", async (req, res) => {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+router.get("/get_tasks/:user_id", async (req, res) => {
 
     var user_id = req.params["user_id"];
     const db = client.db("mydb");
@@ -158,10 +131,7 @@ app.get("/get_tasks/:user_id", async (req, res) => {
     res.send(answer);
 });
 
-app.get("/add_task/:name/:descr/:link", async (req, res) => {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+router.get("/add_task/:name/:descr/:link", async (req, res) => {
 
     // var user_id = req.params["user_id"];
     const db = client.db("mydb");
@@ -184,13 +154,12 @@ app.get("/add_task/:name/:descr/:link", async (req, res) => {
 const vercel_hello = "Express on Vercel changed again more"
 app.get("/", function(req, res)
 {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     res.send(vercel_hello);
 });
 if(!module.parent){
     app.listen(port, () => console.log("Server ready on port " + port));
 }
 
-module.exports = app;
+app.use('/.netlify/functions/api', router);
+module.exports.handler = serverless(app);
