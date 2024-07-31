@@ -10,7 +10,7 @@ const client = new MongoClient(process.env.MONGODB_URI);
 client.connect();
 const app = express();
 let corsOptions = {
-   origin : ['http://localhost:57261', 'https://flappybotback-4fm7p9xx.b4a.run'],
+   origin : ['http://localhost:57261', 'https://mstrhw.github.io'],
 }
 app.use(cors(corsOptions));
 const bot = new TelegramBot(TOKEN, {
@@ -96,7 +96,7 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
     res.send(result);
 });
 
-app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
+app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, res) => {
     console.log("/choose_fraction " + user_id + " " + fraction);
     var user_id = req.params["user_id"];
     var fraction = req.params["fraction"];
