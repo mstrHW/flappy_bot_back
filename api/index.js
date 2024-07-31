@@ -16,13 +16,13 @@ const app = express();
 //     removeHeaders: ['cookie', 'cookie2']
 // })
 
-const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
-const corsOptions ={
-   origin:'*',
-   credentials:true,            //access-control-allow-credentials:true
-   optionSuccessStatus:200,
-}
-app.use(cors(corsOptions));
+// const allowedOrigins = ["mstrhw.github.io", "https://mstrhw.github.io", "https://mstrhw.github.io/flappy_test_devel", "https://mstrhw.github.io/", "https://github.io", "https://www.github.com/"];
+// const corsOptions ={
+//    origin:'*',
+//    credentials:true,            //access-control-allow-credentials:true
+//    optionSuccessStatus:200,
+// }
+// app.use(cors(corsOptions));
 
 const bot = new TelegramBot(TOKEN, {
     polling: true
@@ -60,12 +60,6 @@ bot.on("inline_query", function (iq) {
 
 
 app.get("/get_user_info/:user_id", async (req, res) => {
-        const origin = req.get('origin');
-
-    if (allowedOrigins.includes(origin)) {
-        console.log("includes");
-      res.set('Access-Control-Allow-Origin', origin);
-    }
     var answer = "None";
     console.log("here 1 ");
     var user_id = null;
@@ -92,12 +86,6 @@ app.get("/get_user_info/:user_id", async (req, res) => {
 });
 
 app.get("/pass_onboarding/:user_id", async (req, res) => {
-        const origin = req.get('origin');
-
-    if (allowedOrigins.includes(origin)) {
-        console.log("includes");
-      res.set('Access-Control-Allow-Origin', origin);
-    }
     var user_id = req.params["user_id"];
 
     const db = client.db("mydb");
@@ -117,12 +105,6 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
 });
 
 app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
-            const origin = req.get('origin');
-
-    if (allowedOrigins.includes(origin)) {
-        console.log("includes");
-      res.set('Access-Control-Allow-Origin', origin);
-    }
     var user_id = req.params["user_id"];
     var fraction = req.params["fraction"];
     const db = client.db("mydb");
@@ -142,12 +124,6 @@ app.get("/choose_fraction/:user_id/:fraction", async (req, res) => {
 });
 
 app.get("/get_tasks/:user_id", async (req, res) => {
-            const origin = req.get('origin');
-
-    if (allowedOrigins.includes(origin)) {
-        console.log("includes");
-      res.set('Access-Control-Allow-Origin', origin);
-    }
     var user_id = req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
@@ -167,12 +143,6 @@ app.get("/get_tasks/:user_id", async (req, res) => {
 });
 
 app.get("/add_task/:name/:descr/:link", async (req, res) => {
-            const origin = req.get('origin');
-
-    if (allowedOrigins.includes(origin)) {
-        console.log("includes");
-      res.set('Access-Control-Allow-Origin', origin);
-    }
     // var user_id = req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
@@ -194,16 +164,10 @@ app.get("/add_task/:name/:descr/:link", async (req, res) => {
 const vercel_hello = "Express on Vercel changed again change"
 app.get("/", function(req, res)
 {
-    const origin = req.get('origin');
-
-    if (allowedOrigins.includes(origin)) {
-        console.log("includes");
-        res.set('Access-Control-Allow-Origin', origin);
-    }
     res.send(vercel_hello);
 });
 if(!module.parent){
     app.listen(port, () => console.log("Server ready on port " + port));
 }
-app.use(cors(corsOptions));
+
 module.exports = app;
