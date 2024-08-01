@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
-const TelegramBot = require("node-telegram-bot-api");
+const { Telegraf } = require('telegraf')
+const { message } = require('telegraf/filters')
 const process = require('process');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
@@ -13,29 +14,38 @@ let corsOptions = {
    origin : ['http://localhost:57261', 'https://mstrhw.github.io'],
 }
 app.use(cors(corsOptions));
-const bot = new TelegramBot(TOKEN, {
-    polling: true
-});
+const bot = new Telegraf(TOKEN);
+
+
 const port = 3000;
 const gameName = process.env.GAME_NAME;
 const queries = {};
 // // server.use(express.static(path.join(__dirname, 'flappy_test')));
-bot.onText(/help/, (msg) => bot.sendMessage(msg.from.id, "Say /game if you want to play."));
-bot.onText(/start|game/, function (msg) {
-    bot.sendGame(msg.from.id, gameName)
-});
+bot.start((ctx) => 	ctx.setChatMenuButton({
+		text: "Play game",
+		type: "web_app",
+		web_app: { url: process.env.APP_ENDPOINT + "?user_id=" + ctx.from.id, },
+	}),)
+// bot.help((ctx) => ctx.reply('Send me a sticker'))
+// bot.on(message('sticker'), (ctx) => ctx.reply('👍'))
+// bot.hears('hi', (ctx) => ctx.reply('Hey there'))
+// bot.launch()
+bot.help((ctx) => ctx.reply(ctx.from.id, "Say /game if you want to play."));
+// bot.on(message('start'), function (msg) {
+//     bot.sendGame(msg.from.id, gameName)
+// });
 
-bot.on("callback_query", function (query) {
-    console.log("user: " + query.from.id)
-    console.log("query: " +  query.message.from.id)
+bot.on("callback_query", function (ctx) {
+    console.log("user: " + ctx.from.id)
+    console.log("query: " +  ctx.message.from.id)
     if (query.game_short_name !== gameName) {
-        bot.answerCallbackQuery(query.id, "Sorry, '" + query.game_short_name + "' is not available.");
+        ctx.answerCbQuery(ctx.id, "Sorry, '" + ctx.game_short_name + "' is not available.");
     } else {
-        queries[query.id] = query;
+        queries[ctx.id] = query;
         let gameurl = process.env.APP_ENDPOINT;
-        bot.answerCallbackQuery({
-            callback_query_id: query.id,
-            url: gameurl + "?user_id=" + query.from.id,
+        ctx.answerCbQuery({
+            callback_query_id: ctx.id,
+            url: process.env.APP_ENDPOINT + "?user_id=" + ctx.from.id,
         });
     }
 });
@@ -46,6 +56,16 @@ bot.on("inline_query", function (iq) {
         game_short_name: gameName
     }]);
 });
+
+bot.command("setmenu", ctx =>
+	// sets Web App as the menu button for current chat
+	ctx.setChatMenuButton({
+		text: "Play",
+		type: "web_app",
+		web_app: { url: process.env.APP_ENDPOINT + "?user_id=" + ctx.from.id, },
+	}),
+);
+bot.launch()
 
 
 app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
