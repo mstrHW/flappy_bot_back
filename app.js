@@ -22,9 +22,9 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
     console.log("/get_user_info " + req.params["user_id"]);
     var answer = "None";
 
-    var user_id = null;
+    var user_id = "";
     if ("user_id" in req.params){
-        user_id = req.params["user_id"];
+        user_id = "" + req.params["user_id"];
     }
     else{
         return "Set user_id";
@@ -48,7 +48,7 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
 app.get("/pass_onboarding/:user_id", async (req, res) => {
     console.log("/get_user_info " + req.params["user_id"]);
 
-    var user_id = req.params["user_id"];
+    var user_id = "" + req.params["user_id"];
 
     const db = client.db("mydb");
     const collection = db.collection("users");
@@ -68,7 +68,7 @@ app.get("/pass_onboarding/:user_id", async (req, res) => {
 
 app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, res) => {
     console.log("/choose_fraction " + req.params["user_id"] + " " + req.params["user_id"]);
-    var user_id = req.params["user_id"];
+    var user_id = "" + req.params["user_id"];
     var fraction = req.params["fraction"];
     const db = client.db("mydb");
     const collection = db.collection("users");
@@ -89,7 +89,7 @@ app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, re
 });
 
 app.get("/get_tasks/:user_id", async (req, res) => {
-    var user_id = req.params["user_id"];
+    var user_id = "" + req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
 
@@ -116,7 +116,7 @@ app.get("/get_tasks/:user_id", async (req, res) => {
 });
 
 app.get("/get_tasks", async (req, res) => {
-    var user_id = req.params["user_id"];
+    var user_id = "" + req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
 
@@ -161,7 +161,7 @@ app.post("/remove_task", async (req, res) => {
 app.post("/approve_task", async (req, res) => {
     console.log(req.body);
     var task_id = req.body.task_id;
-    var user_id = req.body.user_id;
+    var user_id = "" + req.body.user_id;
     const db = client.db("mydb");
     const collection = db.collection("task_state");
     var task_id_dict = {}
@@ -176,7 +176,7 @@ app.post("/approve_task", async (req, res) => {
 });
 app.post("/create_user", async (req, res) => {
     console.log(req.body);
-    const user_id = req.body.user_id;
+    const user_id = "" + req.body.user_id;
     const refer = req.body.refer;
     const db = client.db("mydb");
     const collection = db.collection("users");
@@ -210,7 +210,7 @@ app.post("/create_user", async (req, res) => {
 
 app.get("/count_ref/:user_id", async (req, res) => {
     // console.log(req.body);
-    const user_id = req.params.user_id;
+    const user_id = "" + req.params.user_id;
     const db = client.db("mydb");
     const collection = db.collection("users");
     const user = await collection.findOne({"user_id": user_id});
@@ -231,7 +231,7 @@ app.get("/count_ref/:user_id", async (req, res) => {
 
 app.get("/my_refs/:user_id", async (req, res) => {
     // console.log(req.body);
-    const user_id = req.params.user_id;
+    const user_id = "" + req.params.user_id;
     const db = client.db("mydb");
     const collection = db.collection("users");
     const users = await collection.find({"refer": user_id}).toArray();
@@ -254,7 +254,7 @@ app.get("/my_refs/:user_id", async (req, res) => {
 
 app.get("/my_gold/:user_id", async (req, res) => {
     // console.log(req.body);
-    const user_id = req.params.user_id;
+    const user_id = "" + req.params.user_id;
     const db = client.db("mydb");
     const collection = db.collection("user_gold_state");
     const answer = await collection.findOne({"user_id": user_id});
@@ -264,7 +264,7 @@ app.get("/my_gold/:user_id", async (req, res) => {
 
 app.get("/my_ref_link/:user_id", async (req, res) => {
     // console.log(req.body);
-    const user_id = req.params.user_id;
+    const user_id = "" + req.params.user_id;
 
     var answer = {"url_link": "http://t.me/hasofij_bot?game=hasofij2&start=" + user_id};
 
@@ -273,7 +273,7 @@ app.get("/my_ref_link/:user_id", async (req, res) => {
 
 app.get("/fraction_stats", async (req, res) => {
     // console.log(req.body);
-    const user_id = req.params.user_id;
+    const user_id = "" + req.params.user_id;
     const db = client.db("mydb");
     const collection = db.collection("user_gold_state");
     const users1 = await collection.find({"fraction": "House_1"}).toArray();
