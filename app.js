@@ -266,7 +266,7 @@ app.get("/my_ref_link/:user_id", async (req, res) => {
     // console.log(req.body);
     const user_id = "" + req.params.user_id;
 
-    var answer = {"url_link": "http://t.me/hasofij_bot?start=" + user_id};
+    var answer = {"url_link": "http://t.me/share?url=http://t.me/hasofij_bot?start=" + user_id};
 
     res.send(answer);
 });
