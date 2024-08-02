@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 let corsOptions = {
-   origin : ['http://localhost:57261', 'https://mstrhw.github.io', 'http://localhost:50999'],
+   origin : ['http://localhost:57261', 'https://mstrhw.github.io', 'http://localhost:50999', 'http://localhost:49863'],
 }
 app.use(cors(corsOptions));
 const port = 3000;
