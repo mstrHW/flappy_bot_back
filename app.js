@@ -270,7 +270,7 @@ app.get("/my_ref_link/:user_id", async (req, res) => {
     const result = await collection.findOne({"name": invite_url});
 
     var answer = {"url_link": result["link"] + user_id};
-
+    console.log("invite url: " + answer["url_link"]);
     res.send(answer);
 });
 
