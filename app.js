@@ -267,7 +267,7 @@ app.get("/my_ref_link/:user_id", async (req, res) => {
     const user_id = "" + req.params.user_id;
     const db = client.db("mydb");
     const collection = db.collection("urls");
-    const result = await collection.findOne({"name": invite_url});
+    const result = await collection.findOne({"name": "invite_url"});
 
     var answer = {"url_link": result["link"] + user_id};
     console.log("invite url: " + answer["url_link"]);
