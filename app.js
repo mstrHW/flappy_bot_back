@@ -89,6 +89,7 @@ app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, re
 });
 
 app.get("/get_tasks/:user_id", async (req, res) => {
+    console.log("/get_tasks " + req.params["user_id"]);
     var user_id = "" + req.params["user_id"];
     const db = client.db("mydb");
     const collection = db.collection("tasks");
