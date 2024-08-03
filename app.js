@@ -265,8 +265,11 @@ app.get("/my_gold/:user_id", async (req, res) => {
 app.get("/my_ref_link/:user_id", async (req, res) => {
     // console.log(req.body);
     const user_id = "" + req.params.user_id;
+    const db = client.db("mydb");
+    const collection = db.collection("urls");
+    const result = await collection.findOne({"name": invite_url});
 
-    var answer = {"url_link": "http://t.me/share?url=http://t.me/hasofij_bot?start=" + user_id};
+    var answer = {"url_link": result["link"] + user_id};
 
     res.send(answer);
 });
