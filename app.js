@@ -197,13 +197,14 @@ app.post("/create_user", async (req, res) => {
     console.log(req.body);
     const user_id = "" + req.body.user_id;
     const refer = req.body.refer;
+    const has_premium = req.body.refer;
     const db = client.db("mydb");
     const collection = db.collection("users");
     var users_count = (await collection.find({"user_id": user_id}).toArray()).length;
     var result = "Ok";
     if (users_count == 0)
     {
-        const user = {user_id: user_id, refer: refer,onboarding: false, fraction: "NotSet", has_premium: false, counted: false};
+        const user = {user_id: user_id, refer: refer,onboarding: false, fraction: "NotSet", has_premium: has_premium, counted: false};
         await collection.insertOne(user);
         const collection2 = db.collection("user_gold_state")
         await collection2.insertOne({"user_id": user_id, "fraction": "NotSet", "gold": 0});
