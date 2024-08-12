@@ -175,6 +175,24 @@ app.post("/approve_task", async (req, res) => {
 
     res.send("Ok");
 });
+
+app.post("/approve_task_unity/:user_id/:task_id", async (req, res) => {
+    console.log(req.body);
+    var user_id = "" + req.params["user_id"];
+    var task_id = "" + req.params["task_id"];
+    const db = client.db("mydb");
+    const collection = db.collection("task_state");
+    var task_id_dict = {}
+    task_id_dict[task_id] = true;
+    const task_state_coll = collection.updateOne({"user_id": user_id}, {  $set:  task_id_dict });
+
+    var task = await db.collection("tasks").findOne({task_id: task_id});
+    var money = task["money"];
+    await db.collection("user_gold_state").updateOne({"user_id": user_id}, { $inc: {gold: money} })
+
+    res.send("Ok");
+});
+
 app.post("/create_user", async (req, res) => {
     console.log(req.body);
     const user_id = "" + req.body.user_id;
