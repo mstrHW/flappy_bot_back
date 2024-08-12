@@ -176,7 +176,7 @@ app.post("/approve_task", async (req, res) => {
     res.send("Ok");
 });
 
-app.post("/approve_task_unity/:user_id/:task_id", async (req, res) => {
+app.get("/approve_task_unity/:user_id/:task_id", async (req, res) => {
     console.log(req.body);
     var user_id = "" + req.params["user_id"];
     var task_id = "" + req.params["task_id"];
