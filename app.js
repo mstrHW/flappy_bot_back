@@ -197,7 +197,7 @@ app.post("/create_user", async (req, res) => {
     console.log(req.body);
     const user_id = "" + req.body.user_id;
     const refer = req.body.refer;
-    const has_premium = req.body.refer;
+    const has_premium = req.body.has_premium;
     const db = client.db("mydb");
     const collection = db.collection("users");
     var users_count = (await collection.find({"user_id": user_id}).toArray()).length;
