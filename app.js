@@ -18,6 +18,169 @@ app.use(cors(corsOptions));
 const port = 3000;
 
 
+function make_struct(keys) {
+      if (!keys) return null;
+      const k = keys.split(', ');
+      const count = k.length;
+
+      /** @constructor */
+      function constructor() {
+        for (let i = 0; i < count; i++) this[k[i]] = arguments[i];
+      }
+      return constructor;
+}
+
+const UserStruct = new make_struct("user_id, refer, onboarding, fraction, has_premium, counted");
+const UserGoldState = new make_struct("user_id, fraction, gold");
+const UserWallets = new make_struct("user_id, wallets");
+const UserClaimTime = new make_struct("user_id, last_claim_time, claims_count");
+const TaskStruct = new make_struct("task_id, title, link, money, auto_accept");
+
+
+async function find_user(user_id) {
+    var answer = "None";
+    const db = client.db("mydb");
+    const user = await db.collection("users").find({"user_id" : user_id}).toArray();
+
+    if (user.length > 0)
+    {
+        answer = user[0];
+    }
+    delete answer["_id"];
+    return answer;
+}
+
+async function find_wallets(user_id) {
+    var answer = "None";
+    const db = client.db("mydb");
+    const user = await db.collection("wallets").find({"user_id" : user_id}).toArray();
+
+    if (user.length > 0)
+    {
+        answer = user[0];
+    }
+    delete answer["_id"];
+    return answer;
+}
+
+async function find_user_gold_state(user_id) {
+    var answer = "None";
+    const db = client.db("mydb");
+    const user = await db.collection("user_gold_state").find({"user_id" : user_id}).toArray();
+
+    if (user.length > 0)
+    {
+        answer = user[0];
+    }
+    delete answer["_id"];
+    return answer;
+}
+
+async function find_user_tasks(user_id) {
+    const db = client.db("mydb");
+    const collection = db.collection("tasks");
+
+    const tasks = await collection.find().toArray();
+    const user_state = await db.collection("task_state").findOne({"user_id": user_id});
+    // console.log(user_state);
+    var answer = []
+    var summ = 0;
+    for (var task in tasks)
+    {
+        var _append = tasks[task];
+        delete _append["_id"];
+        var status = user_state[_append["task_id"]];
+        // console.log(_append, status)
+        _append["status"] = status;
+        if (status)
+        {
+            summ += _append["money"];
+        }
+        answer.push(_append)
+    }
+
+    return {tasksList: answer, summ: summ};
+}
+
+async function find_refs(user_id) {
+    const db = client.db("mydb");
+    const users = await db.collection("users").find({"refer": user_id}).toArray();
+
+    var answer = [];
+    var summ_money = 0;
+    for (var user in users) {
+        var money = 2000;
+        if (users[user]["has_premium"]) {
+            money = 25000;
+        }
+        summ_money += money;
+        answer.push({user_id: users[user]["user_id"], got_money: money})
+    }
+
+    return {"refs": answer, "summ": summ_money};
+}
+
+async function find_full_user_info(user_id) {
+    var answer = "None";
+    const db = client.db("mydb");
+    const user= await find_user(user_id);
+
+    if (user != "None")
+    {
+        const user_gold_state = await find_user_gold_state(user_id);
+        const user_wallets = await find_wallets(user_id);
+        const user_claim_time = await claim_time(user_id);
+        const tasks = await find_user_tasks(user_id);
+        const refs = await find_refs(user_id);
+        answer = {
+            user: user,
+            user_gold_state: user_gold_state,
+            user_wallets: user_wallets,
+            user_claim_time: user_claim_time,
+            tasks: tasks,
+            refs: refs
+        };
+    }
+
+    return answer;
+}
+
+async function add_wallet(user_id, wallet) {
+    var answer = "None";
+    const db = client.db("mydb");
+    const user = await db.collection("wallets").find({"user_id" : user_id}).toArray();
+
+    if (user.length > 0)
+    {
+        var wallets = {
+            wallets: user[0]["wallets"]
+        };
+        wallets["wallets"].append(wallet);
+        const task_state_coll =  await db.collection("wallets").updateOne({"user_id": user_id}, {  $set:  wallets });
+    }
+
+    return answer;
+}
+
+async function claim_time(user_id) {
+    var answer = "None";
+    const db = client.db("mydb");
+    const user = await db.collection("claim_time").find({"user_id" : user_id}).toArray();
+
+    if (user.length > 0)
+    {
+        const claim_time = await db.collection("rules").find({"name": "claim_timeout"}).toArray();
+        console.log(claim_time);
+        const time_to_claim = user[0]["last_claim_time"] + claim_time[0]["timeout_s"] * 1000 - Date.now();
+        const can_claim =  (Date.now() - claim_time[0]["timeout_s"] * 1000) > user[0]["last_claim_time"];
+        user[0]["can_claim"] = can_claim;
+        user[0]["time_to_claim"] = time_to_claim;
+        answer = user[0];
+    }
+    delete answer["_id"];
+    return answer;
+}
+
 app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
     console.log("/get_user_info " + req.params["user_id"]);
     var answer = "None";
@@ -32,17 +195,25 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
 
     const db = client.db("mydb");
     const collection = db.collection("users");
-    var result = await collection.find({"user_id" : user_id}).toArray();
-    if (result.length == 0)
-    {
-        const user = {user_id: user_id, onboarding: false, fraction: "NotSet"};
-        result = await collection.insertOne(user);
-        result = await collection.find({"user_id" : user_id}).toArray();
+    var result = await find_user(user_id);
+    res.send(result);
+});
+
+app.get("/get_full_info/:user_id", cors(corsOptions), async (req, res) => {
+    console.log("/get_full_info " + req.params["user_id"]);
+    var answer = "None";
+
+    var user_id = "";
+    if ("user_id" in req.params){
+        user_id = "" + req.params["user_id"];
     }
-    answer = result[0];
-    // console.log("here" + answer);
-    delete answer['_id'];
-    res.send(answer);
+    else{
+        return "Set user_id";
+    }
+
+    const user = await find_full_user_info(user_id);
+
+    res.send(user);
 });
 
 app.get("/pass_onboarding/:user_id", async (req, res) => {
@@ -91,29 +262,10 @@ app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, re
 app.get("/get_tasks/:user_id", async (req, res) => {
     console.log("/get_tasks " + req.params["user_id"]);
     var user_id = "" + req.params["user_id"];
-    const db = client.db("mydb");
-    const collection = db.collection("tasks");
 
-    const tasks = await collection.find().toArray();
-    const user_state = await db.collection("task_state").findOne({"user_id": user_id});
-    // console.log(user_state);
-    var answer = []
-    var summ = 0;
-    for (var task in tasks)
-    {
-        var _append = tasks[task];
-        delete _append["_id"];
-        var status = user_state[_append["task_id"]];
-        // console.log(_append, status)
-        _append["status"] = status;
-        if (status)
-        {
-            summ += _append["money"];
-        }
-        answer.push(_append)
-    }
+    const answer = await find_user_tasks(user_id);
 
-    res.send({tasksList: answer, summ: summ});
+    res.send(answer);
 });
 
 app.get("/get_tasks", async (req, res) => {
@@ -139,7 +291,7 @@ app.post("/add_task", async (req, res) => {
     const collection = db.collection("tasks");
     var tasks_count = (await collection.find({}).toArray()).length;
     const task_id = "" + (tasks_count + 1);
-    var task = {"task_id": task_id, "title": req.body.title, "link": req.body.link, "money": parseInt(req.body.money), "auto_accept": req.body.auto_accept}
+    const task = new TaskStruct(task_id, req.body.title, req.body.link, parseInt(req.body.money), req.body.auto_accept);
     var result = await collection.insertOne(task);
     var task_id_dict = {}
     task_id_dict[task_id] = false;
@@ -193,21 +345,50 @@ app.get("/approve_task_unity/:user_id/:task_id", async (req, res) => {
     res.send("Ok");
 });
 
+async function claim_timeout(user_id) {
+    const db = client.db("mydb");
+    const result = await claim_time(user_id);
+    if (result != "None") {
+        if (result["can_claim"]) {
+            await db.collection("user_gold_state").updateOne({"user_id": user_id}, {$inc: {gold: 500}})
+            await db.collection("claim_time").updateOne({"user_id": user_id}, {$set: {last_claim_time: Date.now()}, $inc: {claims_count: 1}})
+        }
+    }
+}
+app.get("/claim_timeout/:user_id", async (req, res) => {
+    console.log("claim_timeout");
+    console.log(req.body);
+    var user_id = "" + req.params["user_id"];
+    const result = await claim_timeout(user_id);
+    const answer= await claim_time(user_id);
+    console.log(answer);
+    res.send(answer);
+});
+
 app.post("/create_user", async (req, res) => {
     console.log(req.body);
     const user_id = "" + req.body.user_id;
     const refer = req.body.refer;
     const has_premium = req.body.has_premium;
+
     const db = client.db("mydb");
     const collection = db.collection("users");
-    var users_count = (await collection.find({"user_id": user_id}).toArray()).length;
+    const answer= await find_user(user_id);
     var result = "Ok";
-    if (users_count == 0)
+    if (answer == "None")
     {
-        const user = {user_id: user_id, refer: refer,onboarding: false, fraction: "NotSet", has_premium: has_premium, counted: false};
-        await collection.insertOne(user);
-        const collection2 = db.collection("user_gold_state")
-        await collection2.insertOne({"user_id": user_id, "fraction": "NotSet", "gold": 0});
+        const user = new UserStruct(user_id, refer, false, "NotSet", has_premium, false);
+        const user_gold_state = new UserGoldState(user_id, "NotSet", 0);
+        const user_wallets = new UserWallets(user_id, []);
+        const claim_time = await db.collection("rules").find({"name": "claim_timeout"}).toArray();
+        console.log(claim_time);
+        console.log(Date.now() - claim_time[0]["timeout_s"] * 1000);
+        const user_claim_time = new UserClaimTime(user_id, Date.now() - claim_time[0]["timeout_s"] * 1000, 0);
+
+        result = await collection.insertOne(user);
+        result = await db.collection("user_gold_state").insertOne(user_gold_state);
+        result = await db.collection("wallets").insertOne(user_wallets);
+        result = await db.collection("claim_time").insertOne(user_claim_time);
         const collection3 = db.collection("task_state")
         const tasks = await db.collection("tasks").find({}).toArray();
         // console.log(tasks);
@@ -337,6 +518,43 @@ app.get("/fraction_stats", async (req, res) => {
 //     }
 //   }
 // ])
+    res.send(answer);
+});
+
+
+app.get("/fraction_stats", async (req, res) => {
+    // console.log(req.body);
+    const user_id = "" + req.params.user_id;
+    const db = client.db("mydb");
+    const collection = db.collection("user_gold_state");
+    const users1 = await collection.find({"fraction": "House_1"}).toArray();
+    var sum1 = 0
+    for (var user1 in users1)
+    {
+        sum1 += users1[user1]["gold"];
+    }
+
+    const users2 = await collection.find({"fraction": "House_2"}).toArray();
+    var sum2 = 0
+    for (var user2 in users2)
+    {
+        sum2 += users2[user2]["gold"];
+    }
+
+    const users3 = await collection.find({"fraction": "House_3"}).toArray();
+    var sum3 = 0
+    for (var user3 in users3)
+    {
+        sum3 += users3[user3]["gold"];
+    }
+    var answer = {
+        "House_1_sum": sum1,
+        "House_1_count": users1.length,
+        "House_2_sum": sum2,
+        "House_2_count": users2.length,
+        "House_3_sum": sum3,
+        "House_3_count": users3.length
+    }
     res.send(answer);
 });
 
