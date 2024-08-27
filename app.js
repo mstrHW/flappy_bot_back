@@ -32,7 +32,7 @@ function make_struct(keys) {
 
 const UserStruct = new make_struct("user_id, refer, onboarding, fraction, has_premium, counted");
 const UserGoldState = new make_struct("user_id, fraction, gold");
-const UserWallets = new make_struct("user_id, wallets");
+const UserWallets = new make_struct("user_id, wallet");
 const UserClaimTime = new make_struct("user_id, last_claim_time, claims_count");
 const TaskStruct = new make_struct("task_id, title, link, money, auto_accept");
 
@@ -135,7 +135,7 @@ async function find_full_user_info(user_id) {
         answer = {
             user: user,
             user_gold_state: user_gold_state,
-            user_wallets: user_wallets,
+            user_wallet: user_wallets,
             user_claim_time: user_claim_time,
             tasks: tasks,
             refs: refs
@@ -153,9 +153,9 @@ async function add_wallet(user_id, wallet) {
     if (user.length > 0)
     {
         var wallets = {
-            wallets: user[0]["wallets"]
+            wallet: user[0]["wallet"]
         };
-        wallets["wallets"].append(wallet);
+        wallets["wallet"] = wallet;
         const task_state_coll =  await db.collection("wallets").updateOne({"user_id": user_id}, {  $set:  wallets });
     }
 
@@ -259,6 +259,16 @@ app.get("/choose_fraction/:user_id/:fraction", cors(corsOptions), async (req, re
     res.send(result);
 });
 
+app.get("/add_wallet/:user_id/:wallet", cors(corsOptions), async (req, res) => {
+    console.log("/add_wallet " + req.params["user_id"] + " " + req.params["wallet"]);
+    const user_id = "" + req.params["user_id"];
+    const wallet = req.params["wallet"];
+    await add_wallet(user_id, wallet);
+    const answer = await find_wallets(user_id);
+    console.log(answer);
+    res.send(answer);
+});
+
 app.get("/get_tasks/:user_id", async (req, res) => {
     console.log("/get_tasks " + req.params["user_id"]);
     var user_id = "" + req.params["user_id"];
@@ -360,7 +370,12 @@ app.get("/claim_timeout/:user_id", async (req, res) => {
     console.log(req.body);
     var user_id = "" + req.params["user_id"];
     const result = await claim_timeout(user_id);
-    const answer= await claim_time(user_id);
+    const answer_time= await claim_time(user_id);
+    const answer_state = await find_user_gold_state(user_id);
+    const answer = {
+        claim_time: answer_time,
+        gold_state: answer_state,
+    }
     console.log(answer);
     res.send(answer);
 });
@@ -379,7 +394,7 @@ app.post("/create_user", async (req, res) => {
     {
         const user = new UserStruct(user_id, refer, false, "NotSet", has_premium, false);
         const user_gold_state = new UserGoldState(user_id, "NotSet", 0);
-        const user_wallets = new UserWallets(user_id, []);
+        const user_wallets = new UserWallets(user_id, "");
         const claim_time = await db.collection("rules").find({"name": "claim_timeout"}).toArray();
         console.log(claim_time);
         console.log(Date.now() - claim_time[0]["timeout_s"] * 1000);
