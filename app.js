@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 let corsOptions = {
-   origin : ['*', 'https://mstrhw.github.io', 'http://localhost:52791'],
+   origin : ['*', 'https://mstrhw.github.io', 'http://localhost:54144'],
 }
 app.use(cors(corsOptions));
 const port = 3000;
@@ -170,7 +170,6 @@ async function claim_time(user_id) {
     if (user.length > 0)
     {
         const claim_time = await db.collection("rules").find({"name": "claim_timeout"}).toArray();
-        console.log(claim_time);
         const time_to_claim = user[0]["last_claim_time"] + claim_time[0]["timeout_s"] * 1000 - Date.now();
         const can_claim =  (Date.now() - claim_time[0]["timeout_s"] * 1000) > user[0]["last_claim_time"];
         user[0]["can_claim"] = can_claim;
@@ -183,6 +182,7 @@ async function claim_time(user_id) {
 
 app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
     console.log("/get_user_info " + req.params["user_id"]);
+    const start = performance.now();
     var answer = "None";
 
     var user_id = "";
@@ -196,11 +196,17 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
     const db = client.db("mydb");
     const collection = db.collection("users");
     var result = await find_user(user_id);
+
+    const end = performance.now();
+    const exec_time = end - start;
+    result["exec_time"] = exec_time
+
     res.send(result);
 });
 
 app.get("/get_full_info/:user_id", cors(corsOptions), async (req, res) => {
     console.log("/get_full_info " + req.params["user_id"]);
+    const start = performance.now();
     var answer = "None";
 
     var user_id = "";
@@ -212,6 +218,10 @@ app.get("/get_full_info/:user_id", cors(corsOptions), async (req, res) => {
     }
 
     const user = await find_full_user_info(user_id);
+    console.log("end " + req.params["user_id"]);
+    const end = performance.now();
+    const exec_time = end - start;
+    user["exec_time"] = exec_time
 
     res.send(user);
 });
@@ -381,7 +391,8 @@ app.get("/claim_timeout/:user_id", async (req, res) => {
 });
 
 app.post("/create_user", async (req, res) => {
-    console.log(req.body);
+    const start = performance.now();
+
     const user_id = "" + req.body.user_id;
     const refer = req.body.refer;
     const has_premium = req.body.has_premium;
@@ -396,8 +407,6 @@ app.post("/create_user", async (req, res) => {
         const user_gold_state = new UserGoldState(user_id, "NotSet", 0);
         const user_wallets = new UserWallets(user_id, "");
         const claim_time = await db.collection("rules").find({"name": "claim_timeout"}).toArray();
-        console.log(claim_time);
-        console.log(Date.now() - claim_time[0]["timeout_s"] * 1000);
         const user_claim_time = new UserClaimTime(user_id, Date.now() - claim_time[0]["timeout_s"] * 1000, 0);
 
         result = await collection.insertOne(user);
@@ -420,8 +429,10 @@ app.post("/create_user", async (req, res) => {
     {
         result = "already in db";
     }
+    const end = performance.now();
+    const exec_time = end - start;
 
-    res.send("Ok");
+    res.send("Ok: " + exec_time);
 });
 
 app.get("/count_ref/:user_id", async (req, res) => {
