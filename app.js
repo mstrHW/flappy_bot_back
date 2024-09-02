@@ -199,7 +199,7 @@ app.get("/get_user_info/:user_id", cors(corsOptions), async (req, res) => {
 
     const end = performance.now();
     const exec_time = end - start;
-    result["exec_time"] = exec_time
+    // result["exec_time"] = exec_time
 
     res.send(result);
 });
@@ -221,7 +221,7 @@ app.get("/get_full_info/:user_id", cors(corsOptions), async (req, res) => {
     console.log("end " + req.params["user_id"]);
     const end = performance.now();
     const exec_time = end - start;
-    user["exec_time"] = exec_time
+    // user["exec_time"] = exec_time
 
     res.send(user);
 });
