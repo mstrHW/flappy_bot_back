@@ -307,7 +307,7 @@ app.get("/get_tasks", async (req, res) => {
 
 app.post("/add_task", async (req, res) => {
     console.log(req.body);
-    var user_id = req.body.user_id;
+    var user_id = "" + req.body.user_id;
     const db = client.db("mydb");
     var is_admin = (await db.collection("admins").find({"id": user_id}).toArray()).length > 0;
     var __result = "go away";
@@ -324,12 +324,13 @@ app.post("/add_task", async (req, res) => {
         const task_state_coll = db.collection("task_state").updateMany({}, {$set: task_id_dict});
         __result = "ok";
     }
+    console.log(__result);
     res.send(__result);
 });
 
 app.post("/remove_task", async (req, res) => {
     console.log(req.body);
-    var user_id = req.body.user_id;
+    var user_id = "" + req.body.user_id;
     const db = client.db("mydb");
     var is_admin = (await db.collection("admins").find({"id": user_id}).toArray()).length > 0;
     var __result = "go away";
@@ -345,6 +346,7 @@ app.post("/remove_task", async (req, res) => {
         const task_state_coll = db.collection("task_state").updateMany({}, {  $unset: task_id_dict  });
         __result = "ok";
     }
+        console.log(__result);
     res.send(__result);
 });
 
