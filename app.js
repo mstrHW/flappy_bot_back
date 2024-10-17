@@ -334,7 +334,8 @@ app.post("/remove_task", async (req, res) => {
     
     if (is_admin)
     {
-        var task_id = parseInt(req.body.task_id, 10);
+        // var task_id = parseInt(req.body.task_id, 10);
+        var task_id = req.body.task_id;
         const db = client.db("mydb");
         const collection = db.collection("tasks");
         var result = await collection.deleteOne({"task_id": task_id});
