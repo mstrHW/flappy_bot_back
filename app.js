@@ -307,28 +307,43 @@ app.get("/get_tasks", async (req, res) => {
 
 app.post("/add_task", async (req, res) => {
     console.log(req.body);
-    const db = client.db("mydb");
-    const collection = db.collection("tasks");
-    var tasks_count = (await collection.find({}).toArray()).length;
-    const task_id = "" + (tasks_count + 1);
-    const task = new TaskStruct(task_id, req.body.title, req.body.link, parseInt(req.body.money), req.body.auto_accept);
-    var result = await collection.insertOne(task);
-    var task_id_dict = {}
-    task_id_dict[task_id] = false;
-    const task_state_coll = db.collection("task_state").updateMany({}, {  $set: task_id_dict  });
-    res.send("Ok");
+    var user_id = req.body.user_id;
+    var is_admin = (await db.collection("admins").find({"id": user_id}).toArray()).length > 0;
+    var __result = "go away";
+
+    if (is_admin) {
+        const db = client.db("mydb");
+        const collection = db.collection("tasks");
+        var tasks_count = (await collection.find({}).toArray()).length;
+        const task_id = "" + (tasks_count + 1);
+        const task = new TaskStruct(task_id, req.body.title, req.body.link, parseInt(req.body.money), req.body.auto_accept);
+        var result = await collection.insertOne(task);
+        var task_id_dict = {}
+        task_id_dict[task_id] = false;
+        const task_state_coll = db.collection("task_state").updateMany({}, {$set: task_id_dict});
+        __result = "ok";
+    }
+    res.send(__result);
 });
 
 app.post("/remove_task", async (req, res) => {
     console.log(req.body);
-    var task_id = parseInt(req.body.task_id, 10);
-    const db = client.db("mydb");
-    const collection = db.collection("tasks");
-    var result = await collection.deleteOne({"task_id": task_id});
-    var task_id_dict = {}
-    task_id_dict[task_id] = 1
-    const task_state_coll = db.collection("task_state").updateMany({}, {  $unset: task_id_dict  });
-    res.send("Ok");
+    var user_id = req.body.user_id;
+    var is_admin = (await db.collection("admins").find({"id": user_id}).toArray()).length > 0;
+    var __result = "go away";
+    
+    if (is_admin)
+    {
+        var task_id = parseInt(req.body.task_id, 10);
+        const db = client.db("mydb");
+        const collection = db.collection("tasks");
+        var result = await collection.deleteOne({"task_id": task_id});
+        var task_id_dict = {}
+        task_id_dict[task_id] = 1
+        const task_state_coll = db.collection("task_state").updateMany({}, {  $unset: task_id_dict  });
+        __result = "ok";
+    }
+    res.send(__result);
 });
 
 app.post("/approve_task", async (req, res) => {
